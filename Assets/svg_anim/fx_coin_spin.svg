@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <style>
+    /* squash вокруг центра = 2D-имитация вращения ребром, в такт звезде/молнии
+       (hudFlipX в style.css: 1.2s linear). transform-box:fill-box + origin:center
+       → центр bbox внутренней группы = центр монеты. Внешний translate не трогаем. */
+    .coin-spin { transform-box: fill-box; transform-origin: center; animation: coinSquash 1.2s linear infinite; }
+    @keyframes coinSquash { 0% { transform: scaleX(1); } 50% { transform: scaleX(0.1); } 100% { transform: scaleX(1); } }
+    @media (prefers-reduce-motion: reduce) { .coin-spin { animation: none; } }
+  </style>
+  <g transform="translate(64,64)">
+    <g class="coin-spin">
+      <circle cx="0" cy="0" r="40" fill="#FFE866" stroke="#D4A820" stroke-width="3"/>
+      <circle cx="0" cy="0" r="28" fill="#FFF4A0" stroke="#E8C840" stroke-width="2"/>
+      <text x="0" y="11" text-anchor="middle" font-size="30" font-weight="bold" fill="#C89020" font-family="Arial, sans-serif">$</text>
+    </g>
+  </g>
+</svg>

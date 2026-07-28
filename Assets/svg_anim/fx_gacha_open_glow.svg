@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <radialGradient id="gachaGlow">
+      <stop offset="0%" stop-color="#FFFDE0" stop-opacity="1"/>
+      <stop offset="40%" stop-color="#FFE880" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFD040" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="128" cy="128" r="100" fill="url(#gachaGlow)">
+    <animate attributeName="r" values="60;110;60" dur="1.5s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+  </circle>
+  <!-- Лучи -->
+  <g opacity="0.4">
+    <animateTransform attributeName="transform" type="rotate" values="0 128 128;360 128 128" dur="8s" repeatCount="indefinite"/>
+    <line x1="128" y1="28" x2="128" y2="60" stroke="#FFE880" stroke-width="3" stroke-linecap="round"/>
+    <line x1="128" y1="196" x2="128" y2="228" stroke="#FFE880" stroke-width="3" stroke-linecap="round"/>
+    <line x1="28" y1="128" x2="60" y2="128" stroke="#FFE880" stroke-width="3" stroke-linecap="round"/>
+    <line x1="196" y1="128" x2="228" y2="128" stroke="#FFE880" stroke-width="3" stroke-linecap="round"/>
+    <line x1="57" y1="57" x2="80" y2="80" stroke="#FFE880" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="176" y1="176" x2="199" y2="199" stroke="#FFE880" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="199" y1="57" x2="176" y2="80" stroke="#FFE880" stroke-width="2.5" stroke-linecap="round"/>
+    <line x1="80" y1="176" x2="57" y2="199" stroke="#FFE880" stroke-width="2.5" stroke-linecap="round"/>
+  </g>
+</svg>

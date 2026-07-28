@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <path d="M64 90 Q40 70 40 54 Q40 42 52 42 Q60 42 64 52 Q68 42 76 42 Q88 42 88 54 Q88 70 64 90 Z" fill="#FF90B0" stroke="#E06088" stroke-width="2.5">
+    <animate attributeName="opacity" values="0;1;1;0" dur="2s" repeatCount="indefinite"/>
+    <animateTransform attributeName="transform" type="translate" values="0 10;0 -20" dur="2s" repeatCount="indefinite"/>
+  </path>
+</svg>

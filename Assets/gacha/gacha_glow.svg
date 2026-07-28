@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <!-- основное мягкое свечение -->
+    <radialGradient id="ggGlow">
+      <stop offset="0%"  stop-color="#FFF8E0" stop-opacity="0.95"/>
+      <stop offset="35%" stop-color="#FFE3A8" stop-opacity="0.65"/>
+      <stop offset="65%" stop-color="#FFC2D8" stop-opacity="0.30"/>
+      <stop offset="100%" stop-color="#FFC2D8" stop-opacity="0"/>
+    </radialGradient>
+    <!-- яркое ядро -->
+    <radialGradient id="ggCore">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="1"/>
+      <stop offset="60%" stop-color="#FFF3C8" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#FFE3A8" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- пульсирующее внешнее свечение -->
+  <circle cx="128" cy="128" r="110" fill="url(#ggGlow)">
+    <animate attributeName="r"       values="95;118;95"   dur="1.6s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;1;0.7"   dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+
+  <!-- медленно вращающиеся лучи -->
+  <g stroke="#FFE9B0" stroke-linecap="round" opacity="0.55">
+    <animateTransform attributeName="transform" type="rotate"
+      values="0 128 128;360 128 128" dur="14s" repeatCount="indefinite"/>
+    <line x1="128" y1="20"  x2="128" y2="58"  stroke-width="5"/>
+    <line x1="128" y1="198" x2="128" y2="236" stroke-width="5"/>
+    <line x1="20"  y1="128" x2="58"  y2="128" stroke-width="5"/>
+    <line x1="198" y1="128" x2="236" y2="128" stroke-width="5"/>
+    <line x1="52"  y1="52"  x2="80"  y2="80"  stroke-width="3.5"/>
+    <line x1="176" y1="176" x2="204" y2="204" stroke-width="3.5"/>
+    <line x1="204" y1="52"  x2="176" y2="80"  stroke-width="3.5"/>
+    <line x1="80"  y1="176" x2="52"  y2="204" stroke-width="3.5"/>
+  </g>
+
+  <!-- мерцающие искры -->
+  <g fill="#FFFDE0">
+    <circle cx="128" cy="44"  r="3">  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="0s"   repeatCount="indefinite"/></circle>
+    <circle cx="196" cy="84"  r="2.5"><animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="0.2s" repeatCount="indefinite"/></circle>
+    <circle cx="210" cy="150" r="2">  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="0.4s" repeatCount="indefinite"/></circle>
+    <circle cx="160" cy="206" r="2.5"><animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="0.6s" repeatCount="indefinite"/></circle>
+    <circle cx="92"  cy="200" r="2">  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="0.8s" repeatCount="indefinite"/></circle>
+    <circle cx="46"  cy="146" r="2.5"><animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="1.0s" repeatCount="indefinite"/></circle>
+    <circle cx="60"  cy="82"  r="2">  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin="1.2s" repeatCount="indefinite"/></circle>
+  </g>
+
+  <!-- пульсирующее ядро -->
+  <circle cx="128" cy="128" r="46" fill="url(#ggCore)">
+    <animate attributeName="r" values="40;52;40" dur="1.6s" repeatCount="indefinite"/>
+  </circle>
+</svg>

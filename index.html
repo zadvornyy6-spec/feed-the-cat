@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/webp" href="Assets/skins/skin_01/skin_01_0_512x512.webp">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <title data-i18n="gameTitle">Накорми котика после битвы</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div id="app">
+    <div id="loading-screen">
+      <div class="load-cat"><img src="Assets/skins/skin_01/skin_01_0_512x512.webp" class="load-cat-img" alt="" /></div>
+      <img src="Assets/svg_anim/anim_loading_paws.svg" class="load-paws" alt="" />
+      <div class="load-bar"><div id="load-fill"></div></div>
+      <div id="load-text">Загрузка...</div>
+    </div>
+
+    <div id="game-root">
+      <div id="background-layer"></div>
+
+      <div id="game-layer">
+        <div id="cat-container">
+          <div id="cat-sprite" class="cat-sprite"></div>
+          <div id="cat-name">Котик</div>
+        </div>
+      </div>
+
+      <canvas id="fx-canvas"></canvas>
+      <div id="svg-fx-layer"></div>
+
+      <div id="ui-layer">
+        <div class="top-section">
+          <div id="hud">
+            <div class="hud-left">
+              <div id="hud-level" class="pill">Ур. 1</div>
+              <div id="hud-coins" class="pill"><img src="Assets/svg_anim/fx_coin_spin.svg" class="hud-icon" /> 0</div>
+              <div id="hud-income" class="pill"><img src="Assets/ui_icons/icon_lightning.svg" class="hud-icon" alt="" /> 0/с</div>
+            </div>
+            <div class="hud-right">
+              <button class="icon-btn" data-action="open-gacha" data-i18n-title="gacha" title="Гача"><img src="Assets/ui_icons/icon_gacha.svg" class="hud-icon-btn" /></button>
+              <button class="icon-btn" data-action="open-settings" data-i18n-title="settings" title="Настройки"><img src="Assets/ui_icons/icon_settings.svg" class="hud-icon-btn" /></button>
+            </div>
+          </div>
+
+          <div id="player-xp-bar" class="bar small">
+            <div id="player-xp-fill"></div>
+            <span id="player-xp-text">0 / 110</span>
+          </div>
+
+          <div id="buff-bar"></div>
+        </div>
+
+        <div class="middle-section"></div>
+
+        <div class="bottom-section">
+          <div id="skin-xp-panel">
+            <div id="skin-info"></div>
+            <div id="skin-xp-bar" class="bar">
+              <div id="skin-xp-fill"></div>
+              <span id="skin-xp-text"></span>
+            </div>
+          </div>
+
+          <div id="quickfeed-panel"></div>
+
+          <div id="action-bar">
+            <button class="action-btn" data-action="open-shop">
+              <img class="action-icon" src="Assets/ui_icons/icon_shop.svg" alt="" />
+              <span data-i18n="shop">Магазин</span>
+            </button>
+
+            <button class="action-btn" data-action="open-cook">
+              <img class="action-icon" src="Assets/ui_icons/icon_cooking.svg" alt="" />
+              <span data-i18n="cook">Готовка</span>
+            </button>
+
+            <button class="action-btn" data-action="open-feed">
+              <img class="action-icon" src="Assets/ui_icons/icon_feed.svg" alt="" />
+              <span data-i18n="feed">Кормить</span>
+            </button>
+
+            <button class="action-btn" data-action="open-skins">
+              <img class="action-icon" src="Assets/ui_icons/icon_skins.svg" alt="" />
+              <span data-i18n="skins">Скины</span>
+            </button>
+
+            <button class="action-btn" id="btn-boss" data-action="open-boss">
+              <img class="action-icon" src="Assets/ui_icons/icon_boss.svg" alt="" />
+              <span data-i18n="boss">Босс</span>
+            </button>
+
+            <button class="action-btn" data-action="open-prestige">
+              <img class="action-icon" src="Assets/ui_icons/icon_prestige.svg" alt="" />
+              <span data-i18n="prestige">Престиж</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal-root"></div>
+      <div id="tutorial-root"></div>
+      <div id="toast-root"></div>
+    </div>
+  </div>
+
+  <script src="js/sfx.js"></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

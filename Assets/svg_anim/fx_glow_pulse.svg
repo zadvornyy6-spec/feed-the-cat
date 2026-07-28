@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <radialGradient id="glowAnim">
+      <stop offset="0%" stop-color="#FFF8E0" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#FFE8A0" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#FFD870" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <circle cx="64" cy="64" r="50" fill="url(#glowAnim)">
+    <animate attributeName="r" values="40;55;40" dur="2s" repeatCount="indefinite"/>
+    <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

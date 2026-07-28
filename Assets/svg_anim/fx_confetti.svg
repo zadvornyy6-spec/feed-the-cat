@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <style>
+    .c { transform-box: fill-box; transform-origin: center; animation: conf .9s ease-out forwards; }
+    @keyframes conf {
+      0%   { opacity: 0; transform: translate(0,0) rotate(0) scale(.4); }
+      15%  { opacity: 1; }
+      100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(1); }
+    }
+  </style>
+  <g>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#ff9ec4" style="--dx:-46px;--dy:-34px;--rot:240deg"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#ffd86b" style="--dx:44px;--dy:-38px;--rot:-220deg;animation-delay:.04s"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#5ad8b0" style="--dx:-50px;--dy:24px;--rot:300deg;animation-delay:.08s"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#b394d8" style="--dx:50px;--dy:26px;--rot:-300deg;animation-delay:.02s"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#ff8a5b" style="--dx:4px;--dy:-52px;--rot:180deg;animation-delay:.06s"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#aedcf2" style="--dx:-8px;--dy:50px;--rot:-160deg;animation-delay:.1s"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#ffb0a8" style="--dx:34px;--dy:6px;--rot:120deg;animation-delay:.05s"/>
+    <rect class="c" x="57" y="55" width="6" height="11" rx="2" fill="#b6e8c8" style="--dx:-36px;--dy:4px;--rot:-120deg;animation-delay:.09s"/>
+  </g>
+</svg>

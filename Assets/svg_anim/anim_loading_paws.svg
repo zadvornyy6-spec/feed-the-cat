@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 64" width="256" height="64">
+  <g fill="#F0C8E8" stroke="#C880B0" stroke-width="2">
+    <!-- Лапка 1 -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="0s" repeatCount="indefinite"/>
+      <ellipse cx="40" cy="40" rx="8" ry="7"/>
+      <circle cx="32" cy="30" r="4"/>
+      <circle cx="40" cy="27" r="4"/>
+      <circle cx="48" cy="30" r="4"/>
+    </g>
+    <!-- Лапка 2 -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="0.5s" repeatCount="indefinite"/>
+      <ellipse cx="100" cy="40" rx="8" ry="7"/>
+      <circle cx="92" cy="30" r="4"/>
+      <circle cx="100" cy="27" r="4"/>
+      <circle cx="108" cy="30" r="4"/>
+    </g>
+    <!-- Лапка 3 -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="1s" repeatCount="indefinite"/>
+      <ellipse cx="160" cy="40" rx="8" ry="7"/>
+      <circle cx="152" cy="30" r="4"/>
+      <circle cx="160" cy="27" r="4"/>
+      <circle cx="168" cy="30" r="4"/>
+    </g>
+    <!-- Лапка 4 -->
+    <g opacity="0">
+      <animate attributeName="opacity" values="0;1;1;0" dur="2s" begin="1.5s" repeatCount="indefinite"/>
+      <ellipse cx="220" cy="40" rx="8" ry="7"/>
+      <circle cx="212" cy="30" r="4"/>
+      <circle cx="220" cy="27" r="4"/>
+      <circle cx="228" cy="30" r="4"/>
+    </g>
+  </g>
+</svg>

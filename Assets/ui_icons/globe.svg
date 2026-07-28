@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+  <defs><clipPath id="glClip"><circle cx="12" cy="12" r="9.2"/></clipPath></defs>
+  <circle cx="12" cy="12" r="10" fill="#aedcf2" stroke="#5a4a6a" stroke-width="1.5"/>
+  <g clip-path="url(#glClip)" fill="#5ad8b0">
+    <ellipse cx="8" cy="9" rx="3.2" ry="2.4"/>
+    <ellipse cx="15.4" cy="8" rx="2.2" ry="3"/>
+    <ellipse cx="14" cy="15.2" rx="3.4" ry="2.2"/>
+    <ellipse cx="6.6" cy="15" rx="2" ry="1.6"/>
+  </g>
+  <g clip-path="url(#glClip)" fill="none" stroke="#ffffff" stroke-width="0.8" opacity="0.7">
+    <ellipse cx="12" cy="12" rx="4" ry="9.2"/>
+    <ellipse cx="12" cy="12" rx="8" ry="9.2"/>
+    <line x1="2.8" y1="12" x2="21.2" y2="12"/>
+    <line x1="4" y1="7.5" x2="20" y2="7.5"/>
+    <line x1="4" y1="16.5" x2="20" y2="16.5"/>
+  </g>
+  <ellipse cx="8.4" cy="7.4" rx="2.4" ry="1.4" fill="#ffffff" opacity="0.35"/>
+</svg>
