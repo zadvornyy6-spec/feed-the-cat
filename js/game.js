@@ -4,6 +4,7 @@ import {
   CLOUD_MOCK_KEY,
   ALLOW_MOCK_REWARDED,
   GP_SDK_URL,
+  VK_BRIDGE_URL,
   I18N,
 } from "./config.js";
 
@@ -345,37 +346,109 @@ mock=true → локалка работает бит-в-бит как раньш
 export const Platform = {
   gp: null,
   _gpInstance: null,
+  vk: null,
+  backend: "mock",   // "mock" | "gp" | "vk" — кто реально отвечает на вызовы
   mock: true,
   lang: null,
   _sessionStart: 0,
   _lastInterstitial: 0,
   _gameplay: false,
+  _vkBridge: null,
+  _vkParams: null,
 
   async init() {
     this._sessionStart = Date.now();
+
+    // 1) VK — пробуем первым, если мы в контексте VK (iframe / vk_app_id в URL).
+    if (this._isVKContext()) {
+      try {
+        const bridge = await this.loadVK();
+        if (bridge) {
+          let lp = {};
+          try { lp = await bridge.send("VKWebAppGetLaunchParams", {}); } catch (e) {}
+          const appId = Number(lp.vk_app_id || 0);
+          if (appId > 0) {
+            this.vk = bridge;
+            this._vkParams = lp;
+            this.backend = "vk";
+            this.mock = false;
+            this.lang = lp.vk_language || null;   // автоопределение языка (vk_language)
+            console.info("[Platform] backend=vk app=" + appId + " lang=" + this.lang);
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn("VK init failed, falling back.", err);
+      }
+    }
+
+    // 2) GamePush — прочие витрины (как раньше).
     try {
       const gp = await this.loadGamePush();
       if (gp) {
         this.gp = gp;
-        try { await gp.player?.ready; } catch (e) {}   // ждём синхронизацию игрока
-        // isDev = dev-режим GamePush (локалка с токеном / превью) → мок разрешён,
-        // чтобы гачу/rewarded можно было тестить без настоящей рекламы.
+        try { await gp.player?.ready; } catch (e) {}
         this.mock = !!gp.isDev;
-        this.lang = gp.language || null;                // автоопределение языка (п. 2.14)
+        this.backend = this.mock ? "mock" : "gp";
+        this.lang = gp.language || null;
       } else {
         this.gp = null;
         this.mock = true;
+        this.backend = "mock";
         this.lang = null;
       }
     } catch (err) {
       console.warn("GamePush init failed, using mock.", err);
       this.gp = null;
       this.mock = true;
+      this.backend = "mock";
       this.lang = null;
     }
+    console.info("[Platform] backend=" + this.backend);
   },
 
-  // Грузим GamePush SDK динамически. Без токена — сразу null (локалка без платформы).
+  // Мы в контексте VK? Параметры VK передаёт через URL (search/hash), а саму
+  // игру открывает в iframe. На github.io в обычном браузере оба признака
+  // ложны → мост не грузится. Если доступ к top запрещён (cross-origin iframe)
+  // — считаем себя в витрине и даём мосту шанс (он сам отпадёт без vk_app_id).
+  _isVKContext() {
+    try {
+      const url = (location.search || "") + "&" + (location.hash || "");
+      if (/\[?\&]vk_app_id=/.test(url)) return true;
+      if (window.self !== window.top) return true;
+    } catch (e) {
+      return true;
+    }
+    return false;
+  },
+
+  // Грузим VK Bridge динамически (как GamePush). Без контекста VK — не зовётся.
+  // Init обязателен и должен пройти до любых других событий; не прошёл → null
+  // → игра стартует в моке, а не виснет на лоадере.
+  async loadVK() {
+    if (this._vkBridge) return this._vkBridge;
+    if (!VK_BRIDGE_URL) return null;
+    await new Promise((res) => {
+      const s = document.createElement("script");
+      s.src = VK_BRIDGE_URL;
+      s.async = true;
+      s.onload = () => res();
+      s.onerror = () => res();
+      document.head.appendChild(s);
+    });
+    const bridge = window.vkBridge;
+    if (!bridge || typeof bridge.send !== "function") return null;
+    try {
+      await bridge.send("VKWebAppInit", {});
+    } catch (e) {
+      console.warn("VKWebAppInit failed", e);
+      return null;
+    }
+    this._vkBridge = bridge;
+    return bridge;
+  },
+
+  // Грузим GamePush SDK динагически. Без токена — сразу null (локалка без платформы).
   // Колбэк onGPInit ставим ДО вставки скрипта и гоним его с таймаутом: если сеть/
   // конфиг не дали колбэк за 4с — игра стартует в моке, а не виснет на лоадере.
   async loadGamePush() {
