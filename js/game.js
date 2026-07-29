@@ -495,6 +495,28 @@ export const Platform = {
   // REWARDED (гача). gp.ads.showRewardedVideo() → await → bool (из доки GamePush).
   // Без gp — мок ТОЛЬКО вне боевого режима (mock=true), как и раньше.
   async showRewardedVideo() {
+    // VK: rewarded через native ads (ad_format:'reward'). По доке VK — только
+    // по инициативе игрока (кнопка гачи), награда уже указана в её тексте.
+    // Check→Show подряд допустимы для первого показа. В тестовом режиме (до
+    // каталога) Check вернёт false → fallback на мок, чтобы гача крутилась.
+    if (this.vk && this.backend === "vk") {
+      try {
+        const check = await this.vk.send("VKWebAppCheckNativeAds", { ad_format: "reward" });
+        if (check && check.result) {
+          const show = await this.vk.send("VKWebAppShowNativeAds", { ad_format: "reward" });
+          if (show && show.result) return true;
+        }
+      } catch (e) { console.warn("VK rewarded error", e); }
+      // Тестовый режим: рекламы нет → мок (тост 1с → true). Уберётся флагом
+      // ALLOW_MOCK_REWARDED=false ПОСЛЕ модерации/каталога.
+      if (ALLOW_MOCK_REWARDED) {
+        return new Promise((resolve) => {
+          hooks.toast(t("mockReward"));
+          setTimeout(() => resolve(true), 1000);
+        });
+      }
+      return false;
+    }
     if (this.gp && !this.mock && this.gp.ads?.showRewardedVideo) {
       try {
         const ok = await this.gp.ads.showRewardedVideo();
@@ -527,12 +549,26 @@ export const Platform = {
     try { this.gp?.gameplayStop?.(); } catch (e) {}
   },
   showInterstitial() {
-    if (this.mock) return;                              // локалка/dev: рекламу не суём
-    if (!this.gp?.ads?.showFullscreen) return;
+    if (this.mock) return;
     const now = Date.now();
-    if (now - (this._sessionStart || now) < 60000) return;
-    if (now - (this._lastInterstitial || 0) < 120000) return;
+    if (now - (this._sessionStart || now) < 60000) return;        // не в 1-ю минуту
+    if (now - (this._lastInterstitial || 0) < 120000) return;     // не чаще 2 мин
     this._lastInterstitial = now;
+    // VK: interstitial через native ads (ad_format:'interstitial'). По доке —
+    // без подтверждения, строго на переходах (вызовы из ui.js: результат босса,
+    // возврат из фона). В тестовом режиме Check вернёт false → тихо пропустим.
+    if (this.vk && this.backend === "vk") {
+      this.vk.send("VKWebAppCheckNativeAds", { ad_format: "interstitial" })
+        .then((check) => {
+          if (check && check.result) {
+            return this.vk.send("VKWebAppShowNativeAds", { ad_format: "interstitial" });
+          }
+        })
+        .catch((e) => console.warn("VK interstitial error", e));
+      return;
+    }
+    // GamePush (как раньше)
+    if (!this.gp?.ads?.showFullscreen) return;
     try { this.gp.ads.showFullscreen(); } catch (e) { console.warn("showFullscreen failed", e); }
   },
 
