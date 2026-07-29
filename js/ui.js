@@ -771,12 +771,23 @@ export function renderHUD() {
   const bossBtn = $("#btn-boss");
 
   if (bossBtn) {
+    let icon, label, key;
     if (BossSystem.active) {
-      bossBtn.innerHTML = `<img src="${CONFIG.uiIcons.boss}" class="action-icon" /><span>${t("fight")}</span>`;
+      icon = CONFIG.uiIcons.boss; label = t("fight"); key = "fight";
     } else if (BossSystem.canStart()) {
-      bossBtn.innerHTML = `<img src="${CONFIG.uiIcons.boss}" class="action-icon" /><span>${t("boss")}</span>`;
+      icon = CONFIG.uiIcons.boss; label = t("boss"); key = "boss";
     } else {
-      bossBtn.innerHTML = `<img src="${CONFIG.uiIcons.clock}" class="ico-clock ico-sway" alt=""><span>${fmtTime(state.global.next_boss_time - Date.now())}</span>`;
+      icon = CONFIG.uiIcons.clock; label = fmtTime(state.global.next_boss_time - Date.now()); key = "clock";
+    }
+    // Перерисовываем только при смене режима (active/canStart/cooldown),
+    // а в режиме кулдауна — раз в секунду (таймер), а не 5 раз/сек.
+    // Иконка не пересоздаётся каждый кадр → ico-sway не сбрасывается → нет моргания.
+    const sec = Math.ceil((state.global.next_boss_time - Date.now()) / 1000);
+    if (bossBtn.dataset.key !== key || (key === "clock" && bossBtn.dataset.sec !== String(sec))) {
+      bossBtn.dataset.key = key;
+      bossBtn.dataset.sec = String(sec);
+      const cls = key === "clock" ? "ico-clock ico-sway" : "action-icon";
+      bossBtn.innerHTML = `<img src="${icon}" class="${cls}" alt="" /><span>${label}</span>`;
     }
   }
 }
