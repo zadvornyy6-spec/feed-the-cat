@@ -374,6 +374,20 @@ export const Platform = {
             this.mock = false;
             this.lang = lp.vk_language || null;   // автоопределение языка (vk_language)
             console.info("[Platform] backend=vk app=" + appId + " lang=" + this.lang);
+            // Пауза/возобновление при сворачивании VK (WebView не всегда шлёт
+            // visibilitychange). Идемпотентно с visibilitychange-хендлером ui.js,
+            // двойной вызов безопасен (pause/resume/check активны по флагам).
+            try {
+              this.vk.subscribe("VKWebAppViewHide", () => {
+                try { hooks.musicPause(); } catch (e) {}
+                try { BossSystem.pause(); } catch (e) {}
+                try { SaveManager.save(); } catch (e) {}
+              });
+              this.vk.subscribe("VKWebAppViewRestore", () => {
+                try { hooks.musicResume(); } catch (e) {}
+                try { BossSystem.resume(); } catch (e) {}
+              });
+            } catch (e) { console.warn("VK lifecycle subscribe failed", e); }
             return;
           }
         }
@@ -522,6 +536,14 @@ export const Platform = {
   // ОБЛАКО. Весь state → одна JSON-строка в поле 'progress' (создать в панели GP).
   // Без gp — прежний localStorage-mock (CLOUD_MOCK_KEY), локалка не теряет прогресс.
   async setData(data) {
+    // VK cloud: ключ-значение, значение — строка. Ставим ПЕРВЫМ, чтобы в VK
+    // прогресс шёл в их storage, а не в localStorage WebView (он может чиститься).
+    if (this.vk && this.backend === "vk") {
+      try {
+        await this.vk.send("VKWebAppStorageSet", { progress: JSON.stringify(data) });
+        return;
+      } catch (e) { console.warn("VK storage set failed", e); }
+    }
     if (this.gp?.player?.set) {
       try {
         this.gp.player.set("progress", JSON.stringify(data));
@@ -532,6 +554,13 @@ export const Platform = {
     localStorage.setItem(CLOUD_MOCK_KEY, JSON.stringify(data));
   },
   async getData() {
+    if (this.vk && this.backend === "vk") {
+      try {
+        const r = await this.vk.send("VKWebAppStorageGet", { keys: ["progress"] });
+        const raw = r && r.progress;
+        if (raw) return typeof raw === "string" ? JSON.parse(raw) : raw;
+      } catch (e) { console.warn("VK storage get failed", e); }
+    }
     if (this.gp?.player?.get) {
       try {
         const raw = this.gp.player.get("progress");
