@@ -379,7 +379,7 @@ export const Platform = {
             // → "e is not a function" на каждом событии VK. Правильно: subscribe(fn).
             try {
               this.vk.subscribe((event) => {
-                const type = event && event.type;
+                const type = event && event.detail && event.detail.type;
                 if (!type) return;
                 if (type === "VKWebAppViewHide") {
                   try { hooks.musicPause(); } catch (e) {}
@@ -543,7 +543,18 @@ export const Platform = {
     // прогресс шёл в их storage, а не в localStorage WebView (он может чиститься).
     if (this.vk && this.backend === "vk") {
       try {
-        await this.vk.send("VKWebAppStorageSet", { progress: JSON.stringify(data) });
+        // VK Storage: { key, value }, лимит 2236 символов на value.
+        // Разбиваем state по верхнеуровневым полям → каждый ключ < 2236.
+        const chunks = {
+          p_meta: data._meta, p_global: data.global, p_skins: data.skins,
+          p_economy: data.economy, p_daily: data.daily_limits, p_gacha: data.gacha,
+          p_auto: data.autoclicker, p_upgr: data.upgrades, p_buffs: data.buffs,
+          p_tut: data.tutorial, p_onb: data.onboarding, p_set: data.settings,
+          p_stat: data.statistics,
+        };
+        for (const [key, val] of Object.entries(chunks)) {
+          await this.vk.send("VKWebAppStorageSet", { key, value: JSON.stringify(val) });
+        }
         return;
       } catch (e) { console.warn("VK storage set failed", e); }
     }
@@ -559,9 +570,29 @@ export const Platform = {
   async getData() {
     if (this.vk && this.backend === "vk") {
       try {
-        const r = await this.vk.send("VKWebAppStorageGet", { keys: ["progress"] });
-        const raw = r && r.progress;
-        if (raw) return typeof raw === "string" ? JSON.parse(raw) : raw;
+        const keys = ["p_meta","p_global","p_skins","p_economy","p_daily",
+                      "p_gacha","p_auto","p_upgr","p_buffs","p_tut","p_onb","p_set","p_stat"];
+        const r = await this.vk.send("VKWebAppStorageGet", { keys });
+        if (r && r.keys && r.keys.length) {
+          const map = {};
+          for (const entry of r.keys) { if (entry.value) map[entry.key] = JSON.parse(entry.value); }
+          // Собираем обратно в структуру state
+          const out = {};
+          if (map.p_meta) out._meta = map.p_meta;
+          if (map.p_global) out.global = map.p_global;
+          if (map.p_skins) out.skins = map.p_skins;
+          if (map.p_economy) out.economy = map.p_economy;
+          if (map.p_daily) out.daily_limits = map.p_daily;
+          if (map.p_gacha) out.gacha = map.p_gacha;
+          if (map.p_auto) out.autoclicker = map.p_auto;
+          if (map.p_upgr) out.upgrades = map.p_upgr;
+          if (map.p_buffs) out.buffs = map.p_buffs;
+          if (map.p_tut) out.tutorial = map.p_tut;
+          if (map.p_onb) out.onboarding = map.p_onb;
+          if (map.p_set) out.settings = map.p_set;
+          if (map.p_stat) out.statistics = map.p_stat;
+          if (Object.keys(out).length) return out;
+        }
       } catch (e) { console.warn("VK storage get failed", e); }
     }
     if (this.gp?.player?.get) {
