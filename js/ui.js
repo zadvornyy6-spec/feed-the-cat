@@ -1361,7 +1361,7 @@ export function updateBossFightUI() {
   if (timer) {
     const sec = Math.max(0, Math.ceil((BossSystem.endsAt - Date.now()) / 1000));
     // Иконка создаётся один раз → ico-sway не сбрасывается → нет мерцания.
-    if (!timer.querySelector("img")) {
+    if (!timer.querySelector(".timer-val")) {
       timer.innerHTML = `<img src="${CONFIG.uiIcons.clock}" class="ico-clock ico-clock-lg ico-sway" alt=""><span class="timer-val"></span>`;
     }
     const val = timer.querySelector(".timer-val");
