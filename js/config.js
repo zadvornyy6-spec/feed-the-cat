@@ -18,7 +18,7 @@ export const GP_SDK_URL = "";
 // Platform.init ТОЛЬКО если игра открыта в контексте VK (iframe / vk_app_id
 // в URL). На github.io и локалке скрипт НЕ тянется → игра остаётся в моке.
 // Это внешний https-URL (CDN), относительный путь не нужен.
-export const VK_BRIDGE_URL = "https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js";
+export const VK_BRIDGE_URL = "https://unpkg.com/@vkontakte/vk-bridge@2.15.12/dist/browser.min.js";
 
 // Путь к ассетам (относительно index.html)
 const A = "Assets";
