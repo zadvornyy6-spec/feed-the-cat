@@ -1484,7 +1484,7 @@ export function openSettings() {
     <div class="muted" style="margin-top:14px">
       ${t("progressAutoSave")}<br>
       ${t("version")}: ${state._meta.game_version} ·
-      ${t("platform")}: ${Platform.mock ? t("platformMock") : t("platformYandex")}
+      ${t("platform")}: ${Platform.mock ? t("platformMock") : (Platform.backend === "vk" ? t("platformVK") : (t("platformYandex") || "VK"))}
     </div>
   `;
 
@@ -1899,7 +1899,6 @@ export function setupEvents() {
       MusicManager.resume();
       BossSystem.resume();
       if (!document.querySelector("#modal-root .modal")) Platform.gameplayStart();
-      if (!BossSystem.active && Date.now() - _hiddenAt >= 5000) Platform.showInterstitial();
     }
   });
   window.addEventListener("beforeunload", () => { SaveManager.save(); });

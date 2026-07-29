@@ -231,7 +231,7 @@ export const I18N = {
       version: "Версия",
       platform: "Платформа",
       platformMock: "локальная",
-      platformYandex: "Яндекс Игры",
+      platformVK: "VK Игры",
       levelShort: "Ур.",
       perSecond: "/с",
       secondsShort: "с",
