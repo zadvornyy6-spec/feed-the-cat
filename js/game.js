@@ -581,9 +581,10 @@ export const Platform = {
       try {
         // VK Storage: { key, value }, лимит 2236 символов на value.
         // Разбиваем state по верхнеуровневым полям → каждый ключ < 2236.
+        const gachaCloud = { ...data.gacha, history: [] };
         const chunks = {
           p_meta: data._meta, p_global: data.global, p_skins: data.skins,
-          p_economy: data.economy, p_daily: data.daily_limits, p_gacha: data.gacha,
+          p_economy: data.economy, p_daily: data.daily_limits, p_gacha: gachaCloud,
           p_auto: data.autoclicker, p_upgr: data.upgrades, p_buffs: data.buffs,
           p_tut: data.tutorial, p_onb: data.onboarding, p_set: data.settings,
           p_stat: data.statistics,
@@ -611,7 +612,11 @@ export const Platform = {
         const r = await this.vk.send("VKWebAppStorageGet", { keys });
         if (r && r.keys && r.keys.length) {
           const map = {};
-          for (const entry of r.keys) { if (entry.value) map[entry.key] = JSON.parse(entry.value); }
+          for (const entry of r.keys) {
+            if (!entry.value) continue;
+            try { map[entry.key] = JSON.parse(entry.value); }
+            catch (e) { console.warn("VK storage: key " + entry.key + " parse failed", e); }
+          }
           // Собираем обратно в структуру state
           const out = {};
           if (map.p_meta) out._meta = map.p_meta;
