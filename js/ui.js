@@ -1484,7 +1484,7 @@ export function openSettings() {
     <div class="muted" style="margin-top:14px">
       ${t("progressAutoSave")}<br>
       ${t("version")}: ${state._meta.game_version} ·
-      ${t("platform")}: ${Platform.mock ? t("platformMock") : (Platform.backend === "vk" ? t("platformVK") : (t("platformYandex") || "VK"))}
+      ${t("platform")}: ${Platform.mock ? t("platformMock") : t("platformOnline")}
     </div>
   `;
 
