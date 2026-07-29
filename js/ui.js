@@ -820,6 +820,8 @@ export function renderBuffBar() {
     .join("");
 }
 
+let _quickFeedCache = "";
+
 export function renderQuickFeed() {
   const root = $("#quickfeed-panel");
 
@@ -827,6 +829,10 @@ export function renderQuickFeed() {
     .filter((id) => state.economy.dishes[id] > 0)
     .sort((a, b) => CONFIG.dishes[b].xp - CONFIG.dishes[a].xp)
     .slice(0, 5);
+  // Кэш: id+количество. Не изменилось → не трогаем DOM → нет мерцания.
+  const cacheKey = entries.map((id) => `${id}:${state.economy.dishes[id]}`).join(",");
+  if (cacheKey === _quickFeedCache) return;
+  _quickFeedCache = cacheKey;
 
   if (!entries.length) {
     root.innerHTML = `<div class="quick-empty">${t("noDishes")}</div>`;
@@ -1352,7 +1358,15 @@ export function updateBossFightUI() {
   const timer = $("#boss-timer");
   if (hpFill) hpFill.style.width = `${(BossSystem.hp / BossSystem.maxHp) * 100}%`;
   if (hpText) hpText.textContent = `${fmt(BossSystem.hp)} / ${fmt(BossSystem.maxHp)}`;
-  if (timer) timer.innerHTML = `<img src="${CONFIG.uiIcons.clock}" class="ico-clock ico-clock-lg ico-sway" alt=""> ${Math.max(0, Math.ceil((BossSystem.endsAt - Date.now()) / 1000))}${t("secondsShort")}`;
+  if (timer) {
+    const sec = Math.max(0, Math.ceil((BossSystem.endsAt - Date.now()) / 1000));
+    // Иконка создаётся один раз → ico-sway не сбрасывается → нет мерцания.
+    if (!timer.querySelector("img")) {
+      timer.innerHTML = `<img src="${CONFIG.uiIcons.clock}" class="ico-clock ico-clock-lg ico-sway" alt=""><span class="timer-val"></span>`;
+    }
+    const val = timer.querySelector(".timer-val");
+    if (val) val.textContent = ` ${sec}${t("secondsShort")}`;
+  }
 }
 
 export function showBossResult(win, rewards) {
