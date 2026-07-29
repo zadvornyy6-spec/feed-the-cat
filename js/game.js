@@ -374,18 +374,21 @@ export const Platform = {
             this.mock = false;
             this.lang = lp.vk_language || null;   // автоопределение языка (vk_language)
             console.info("[Platform] backend=vk app=" + appId + " lang=" + this.lang);
-            // Пауза/возобновление при сворачивании VK (WebView не всегда шлёт
-            // visibilitychange). Идемпотентно с visibilitychange-хендлером ui.js,
-            // двойной вызов безопасен (pause/resume/check активны по флагам).
+            // VK Bridge шлёт ВСЕ события в один обработчик — фильтруем по event.type.
+            // subscribe("ИмяСобытия", fn) НЕВАЛИДНО: bridge зовёт строку как функцию
+            // → "e is not a function" на каждом событии VK. Правильно: subscribe(fn).
             try {
-              this.vk.subscribe("VKWebAppViewHide", () => {
-                try { hooks.musicPause(); } catch (e) {}
-                try { BossSystem.pause(); } catch (e) {}
-                try { SaveManager.save(); } catch (e) {}
-              });
-              this.vk.subscribe("VKWebAppViewRestore", () => {
-                try { hooks.musicResume(); } catch (e) {}
-                try { BossSystem.resume(); } catch (e) {}
+              this.vk.subscribe((event) => {
+                const type = event && event.type;
+                if (!type) return;
+                if (type === "VKWebAppViewHide") {
+                  try { hooks.musicPause(); } catch (e) {}
+                  try { BossSystem.pause(); } catch (e) {}
+                  try { SaveManager.save(); } catch (e) {}
+                } else if (type === "VKWebAppViewRestore") {
+                  try { hooks.musicResume(); } catch (e) {}
+                  try { BossSystem.resume(); } catch (e) {}
+                }
               });
             } catch (e) { console.warn("VK lifecycle subscribe failed", e); }
             return;
