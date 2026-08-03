@@ -451,6 +451,14 @@ export const Platform = {
       new Promise((r) => setTimeout(() => r(null), ms)),
     ]);
   },
+  // Таймаут для VK Storage вызовов: в мобильном WebView setData/getData могут
+  // зависать — без race игра теряет прогресс.
+  _vkStorageTimeout(p, ms = 6000) {
+    return Promise.race([
+      Promise.resolve(p).catch((e) => { console.warn("VK storage call failed", e); return null; }),
+      new Promise((r) => setTimeout(() => r(null), ms)),
+    ]);
+  },
   // Предзагрузка rewarded-материалов (по доке VK: Check = предзагрузка заранее,
   // а не в момент клика). Зовём при старте VK и при открытии гачи.
   preloadRewarded() {
@@ -606,8 +614,16 @@ export const Platform = {
           p_stat: data.statistics,
         };
         for (const [key, val] of Object.entries(chunks)) {
-          await this.vk.send("VKWebAppStorageSet", { key, value: JSON.stringify(val) });
+          const setResult = await this._vkStorageTimeout(
+            this.vk.send("VKWebAppStorageSet", { key, value: JSON.stringify(val) }),
+            6000
+          );
+          if (setResult === null) {
+            console.warn("VK storage set timeout for key:", key);
+            return; // прерываем, не пытаемся сохранить остальные
+          }
         }
+        console.info("[VK Storage] saved successfully");
         return;
       } catch (e) { console.warn("VK storage set failed", e); }
     }
@@ -625,8 +641,16 @@ export const Platform = {
       try {
         const keys = ["p_meta","p_global","p_skins","p_economy","p_daily",
                       "p_gacha","p_auto","p_upgr","p_buffs","p_tut","p_onb","p_set","p_stat"];
-        const r = await this.vk.send("VKWebAppStorageGet", { keys });
+        const r = await this._vkStorageTimeout(
+          this.vk.send("VKWebAppStorageGet", { keys }),
+          6000
+        );
+        if (r === null) {
+          console.warn("VK storage get timeout");
+          return null;
+        }
         if (r && r.keys && r.keys.length) {
+          console.info("[VK Storage] loaded", r.keys.length, "chunks");
           const map = {};
           for (const entry of r.keys) {
             if (!entry.value) continue;
@@ -722,8 +746,10 @@ export const SaveManager = {
   async cloudSave() {
     try {
       this.save();
+      console.debug("[Cloud] attempting save, state size:", JSON.stringify(state).length, "chars");
       await Platform.setData(JSON.parse(JSON.stringify(state)));
       Platform.logEvent("cloud_save_success");
+      console.info("[Cloud] save completed");
     } catch (err) {
       console.warn("Cloud save failed", err);
     }
