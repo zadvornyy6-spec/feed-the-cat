@@ -381,7 +381,7 @@ export const Platform = {
             // → "e is not a function" на каждом событии VK. Правильно: subscribe(fn).
             try {
               this.vk.subscribe((event) => {
-                const type = event && event.detail && event.detail.type;
+                const type = (event && event.detail && event.detail.type) || (event && event.type);
                 if (!type) return;
                 if (type === "VKWebAppViewHide") {
                   try { hooks.musicPause(); } catch (e) {}
@@ -434,7 +434,7 @@ export const Platform = {
   _isVKContext() {
     try {
       const url = (location.search || "") + "&" + (location.hash || "");
-      if (/\[?\&]vk_app_id=/.test(url)) return true;
+      if (/\[?\&]vk_app_id=/.test(url))) return true;
       if (window.self !== window.top) return true;
     } catch (e) {
       return true;
@@ -480,13 +480,7 @@ export const Platform = {
     // Здесь только страховка: если не уходил — шлём сейчас.
     if (!window.__vkInitSent) {
       window.__vkInitSent = true;
-      try {
-        const initRes = await this._vkTimeout(bridge.send("VKWebAppInit", {}), 4000);
-        if (initRes === null) { console.warn("VKWebAppInit timeout, fallback to mock."); return null; }
-      } catch (e) {
-        console.warn("VKWebAppInit failed", e);
-        return null;
-      }
+      bridge.send("VKWebAppInit", {}).catch((e) => console.warn("VKWebAppInit failed", e));
     }
     this._vkBridge = bridge;
     return bridge;
