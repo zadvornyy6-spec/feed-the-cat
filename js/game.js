@@ -434,7 +434,8 @@ export const Platform = {
   _isVKContext() {
     try {
       const url = (location.search || "") + "&" + (location.hash || "");
-      if (/\[?\&]vk_app_id=/.test(url))) return true;
+      // indexOf вместо regex: не ломается от экранирования при патчах.
+      if (url.indexOf("vk_app_id=") !== -1) return true;
       if (window.self !== window.top) return true;
     } catch (e) {
       return true;
