@@ -14,11 +14,11 @@ export const ALLOW_MOCK_REWARDED = true;
 // включился боевой режим. Путь относительный не нужен — это внешний https-URL.
 export const GP_SDK_URL = "";
 
-// VK Bridge — подключение для витрины VK Games. Грузится динамически из
-// Platform.init ТОЛЬКО если игра открыта в контексте VK (iframe / vk_app_id
+// VK Bridge — подключение для витрины VK Games. Самохост: локальный файл
+// вместо внешнего CDN, чтобы мобильный WebView не зависал на запросе.
+// Грузится динамически из Platform.init ТОЛЬКО если игра открыта в контексте VK (iframe / vk_app_id
 // в URL). На github.io и локалке скрипт НЕ тянется → игра остаётся в моке.
-// Это внешний https-URL (CDN), относительный путь не нужен.
-export const VK_BRIDGE_URL = "https://unpkg.com/@vkontakte/vk-bridge@2.15.12/dist/browser.min.js";
+export const VK_BRIDGE_URL = "Assets/vendor/vk-bridge.min.js";
 
 // Путь к ассетам (относительно index.html)
 const A = "Assets";

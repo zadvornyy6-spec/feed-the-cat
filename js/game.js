@@ -350,6 +350,7 @@ export const Platform = {
   backend: "mock",   // "mock" | "gp" | "vk" — кто реально отвечает на вызовы
   mock: true,
   lang: null,
+  _vkContext: false,
   _sessionStart: 0,
   _lastInterstitial: 0,
   _gameplay: false,
@@ -360,7 +361,8 @@ export const Platform = {
     this._sessionStart = Date.now();
 
     // 1) VK — пробуем первым, если мы в контексте VK (iframe / vk_app_id в URL).
-    if (this._isVKContext()) {
+    this._vkContext = this._isVKContext();
+    if (this._vkContext) {
       try {
         const bridge = await this.loadVK();
         if (bridge) {
@@ -466,8 +468,9 @@ export const Platform = {
       const s = document.createElement("script");
       s.src = VK_BRIDGE_URL;
       s.async = true;
-      s.onload = () => res();
-      s.onerror = () => res();
+      const t = setTimeout(() => res(), 5000);   // зависший запрос не вешает старт
+      s.onload = () => { clearTimeout(t); res(); };
+      s.onerror = () => { clearTimeout(t); res(); };
       document.head.appendChild(s);
     });
     const bridge = window.vkBridge;
@@ -541,7 +544,7 @@ export const Platform = {
         return false;
       }
     }
-    if (this.mock && ALLOW_MOCK_REWARDED) {
+    if (this.mock && ALLOW_MOCK_REWARDED && !this._vkContext) {
       return new Promise((resolve) => {
         hooks.toast(t("mockReward"));
         setTimeout(() => resolve(true), 1000);
