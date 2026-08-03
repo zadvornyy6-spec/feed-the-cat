@@ -24,7 +24,7 @@ html, body {
 }
 body { display: flex; align-items: center; justify-content: center; }
 button { font-family: inherit; }
-#app { width: 100%; height: 100dvh; position: relative; }
+#app { width: 100%; height: 100vh; height: 100dvh; position: relative; }
 
 #game-root {
   position: relative; width: 100%; height: 100%; margin: 0 auto; overflow: hidden; touch-action: manipulation;
@@ -197,7 +197,7 @@ button { font-family: inherit; }
 
 #modal-root { position: absolute; inset: 0; pointer-events: none; z-index: 30; }
 .modal-overlay { position: absolute; inset: 0; background: rgba(120, 90, 140, 0.28); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; padding: 14px; pointer-events: auto; }
-.modal { position: relative; width: min(100%, 580px); height: min(86dvh, 760px); max-height: none; display: flex; flex-direction: column; overflow: hidden; color: var(--text); background: transparent; border: 1px solid var(--glass-border); border-radius: 28px; box-shadow: 0 24px 60px rgba(120,90,140,0.3); scrollbar-width: thin; scrollbar-color: rgba(150,120,170,0.35) transparent; }
+.modal { position: relative; width: min(100%, 580px); height: min(86vh, 760px); height: min(86dvh, 760px); max-height: none; display: flex; flex-direction: column; overflow: hidden; color: var(--text); background: transparent; border: 1px solid var(--glass-border); border-radius: 28px; box-shadow: 0 24px 60px rgba(120,90,140,0.3); scrollbar-width: thin; scrollbar-color: rgba(150,120,170,0.35) transparent; }
 .modal::-webkit-scrollbar { width: 8px; }
 .modal::-webkit-scrollbar-track { background: transparent; margin: 8px 0; }
 .modal::-webkit-scrollbar-thumb { background: rgba(150,120,170,0.35); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
@@ -207,7 +207,7 @@ button { font-family: inherit; }
 .modal-body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; justify-content: safe center; padding: 14px 16px 18px; background: rgba(255, 255, 255, 0.45); }
 .close-btn { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border: none; border-radius: 14px; background: rgba(150,120,170,0.12); font-size: 18px; cursor: pointer; color: var(--text); transition: background 200ms ease; display: flex; align-items: center; justify-content: center; padding: 0; }
 .close-btn:hover { background: rgba(150,120,170,0.2); }
-@media (max-width: 420px) { .modal { width: 100%; height: 92dvh; border-radius: 18px; } }
+@media (max-width: 420px) { .modal { width: 100%; height: 92vh; height: 92dvh; border-radius: 18px; } }
 
 .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
 .tab { flex: 1; border: none; border-radius: 14px; padding: 10px; background: rgba(150,120,170,0.1); font-weight: 700; cursor: pointer; color: var(--text); }
@@ -530,10 +530,10 @@ ATTACK BUTTON: анимация нажатия
 }
 
 /* модалки: один размер, контент по центру (без дыр снизу) */
-.modal { height: min(86dvh, 760px); max-height: none; display: flex; flex-direction: column; overflow: hidden; }
+.modal { height: min(86vh, 760px); height: min(86dvh, 760px); max-height: none; display: flex; flex-direction: column; overflow: hidden; }
 .modal-header { position: relative; flex: 0 0 auto; }
 .modal-body { flex: 1 1 auto; overflow-y: auto; -webkit-overflow-scrolling: touch; display: flex; flex-direction: column; justify-content: safe center; }
-@media (max-width: 420px) { .modal { width: 100%; height: 92dvh; border-radius: 18px; } }
+@media (max-width: 420px) { .modal { width: 100%; height: 92vh; height: 92dvh; border-radius: 18px; } }
 
 .btn img.asset-icon { margin-right: 5px; vertical-align: -3px; }
 
@@ -1131,7 +1131,7 @@ DESKTOP SCALE — укрупнение только на широких экра
   .cat-sprite { width: min(94vw, 56vh, 480px); }
 
   /* модалки: авто-высота убирает дыры; длинные списки скроллятся до потолка */
-  .modal { height: auto; max-height: 94dvh; }
+  .modal { height: auto; max-height: 94vh; max-height: 94dvh; }
   .modal-header { padding: 16px 20px; }
   .modal-header h3 { font-size: 24px; }
   .modal-body { padding: 16px 18px 20px; }
@@ -1267,7 +1267,7 @@ CONSOLIDATED TAIL — живой перелив фона + адаптив выт
      boss-result-emoji = попапы результата боя / подтверждения престижа /
                          награды обучения (маленькие диалоги). */
   .modal:not(:has(.gacha-stats)):not(:has(.lang-picker)):not(:has(.boss-result-emoji)) {
-    height: 92dvh !important;
+    height: 92vh !important; height: 92dvh !important;
     max-height: none !important;
   }
 
