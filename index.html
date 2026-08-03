@@ -107,6 +107,22 @@
     </div>
   </div>
 
+  <script src="Assets/vk-bridge.min.js"></script>
+  <script>
+    (function () {
+      try {
+        var url = (location.search || "") + "&" + (location.hash || "");
+        var inVK = /\[?\&]vk\_app\_id=/.test(url);
+        try { inVK = inVK || (window.self !== window.top); } catch (e) { inVK = true; }
+        if (inVK && window.vkBridge && !window.__vkInitSent) {
+          window.__vkInitSent = true;
+          window.vkBridge.send("VKWebAppInit", {}).catch(function (e) {
+            console.warn("Early VKWebAppInit failed", e);
+          });
+        }
+      } catch (e) {}
+    })();
+  </script>
   <script src="js/sfx.js"></script>
   <script type="module" src="js/main.js"></script>
 </body>
