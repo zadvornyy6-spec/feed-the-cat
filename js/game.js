@@ -365,7 +365,7 @@ export const Platform = {
         const bridge = await this.loadVK();
         if (bridge) {
           let lp = {};
-          try { lp = await bridge.send("VKWebAppGetLaunchParams", {}); } catch (e) {}
+          try { lp = (await this._vkTimeout(bridge.send("VKWebAppGetLaunchParams", {}), 4000)) || {}; } catch (e) {}
           const appId = Number(lp.vk_app_id || 0);
           if (appId > 0) {
             this.vk = bridge;
@@ -391,6 +391,7 @@ export const Platform = {
                 }
               });
             } catch (e) { console.warn("VK lifecycle subscribe failed", e); }
+            this.preloadRewarded();
             return;
           }
         }
@@ -439,6 +440,22 @@ export const Platform = {
     return false;
   },
 
+  // Таймаут для VK-вызовов: в WebView (Android/iOS) промис моста может не
+  // резолвиться — без race игра виснет на лоадере навсегда.
+  _vkTimeout(p, ms = 4000) {
+    return Promise.race([
+      Promise.resolve(p).catch((e) => { console.warn("VK call failed", e); return null; }),
+      new Promise((r) => setTimeout(() => r(null), ms)),
+    ]);
+  },
+  // Предзагрузка rewarded-материалов (по доке VK: Check = предзагрузка заранее,
+  // а не в момент клика). Зовём при старте VK и при открытии гачи.
+  preloadRewarded() {
+    if (this.vk && this.backend === "vk") {
+      try { this.vk.send("VKWebAppCheckNativeAds", { ad_format: "reward" }).catch(() => {}); } catch (e) {}
+    }
+  },
+
   // Грузим VK Bridge динамически (как GamePush). Без контекста VK — не зовётся.
   // Init обязателен и должен пройти до любых других событий; не прошёл → null
   // → игра стартует в моке, а не виснет на лоадере.
@@ -456,7 +473,11 @@ export const Platform = {
     const bridge = window.vkBridge;
     if (!bridge || typeof bridge.send !== "function") return null;
     try {
-      await bridge.send("VKWebAppInit", {});
+      const initRes = await this._vkTimeout(bridge.send("VKWebAppInit", {}), 4000);
+      if (initRes === null) {
+        console.warn("VKWebAppInit timeout/error, falling back to mock.");
+        return null;   // игра стартует, а не виснет на лоадере
+      }
     } catch (e) {
       console.warn("VKWebAppInit failed", e);
       return null;
@@ -501,20 +522,14 @@ export const Platform = {
     // каталога) Check вернёт false → fallback на мок, чтобы гача крутилась.
     if (this.vk && this.backend === "vk") {
       try {
-        const check = await this.vk.send("VKWebAppCheckNativeAds", { ad_format: "reward" });
-        if (check && check.result) {
-          const show = await this.vk.send("VKWebAppShowNativeAds", { ad_format: "reward" });
-          if (show && show.result) return true;
+        // Материалы предзагружены preloadRewarded(); Show — по клику игрока.
+        const show = await this.vk.send("VKWebAppShowNativeAds", { ad_format: "reward" });
+        if (show && show.result) {
+          this.preloadRewarded(); // готовим материал следующей крутки
+          return true;
         }
       } catch (e) { console.warn("VK rewarded error", e); }
-      // Тестовый режим: рекламы нет → мок (тост 1с → true). Уберётся флагом
-      // ALLOW_MOCK_REWARDED=false ПОСЛЕ модерации/каталога.
-      if (ALLOW_MOCK_REWARDED) {
-        return new Promise((resolve) => {
-          hooks.toast(t("mockReward"));
-          setTimeout(() => resolve(true), 1000);
-        });
-      }
+      // Нет рекламы — нет награды (требование VK). Мок — только локально (backend "mock").
       return false;
     }
     if (this.gp && !this.mock && this.gp.ads?.showRewardedVideo) {

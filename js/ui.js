@@ -1204,6 +1204,7 @@ export function openGacha() {
   openModal(t("gacha"), body);
 
   TutorialSystem.onAction("openGacha");
+  Platform.preloadRewarded();
 }
 
 /************************************************************
