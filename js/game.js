@@ -458,32 +458,35 @@ export const Platform = {
     }
   },
 
-  // Грузим VK Bridge динамически (как GamePush). Без контекста VK — не зовётся.
-  // Init обязателен и должен пройти до любых других событий; не прошёл → null
-  // → игра стартует в моке, а не виснет на лоадере.
   async loadVK() {
     if (this._vkBridge) return this._vkBridge;
-    if (!VK_BRIDGE_URL) return null;
-    await new Promise((res) => {
-      const s = document.createElement("script");
-      s.src = VK_BRIDGE_URL;
-      s.async = true;
-      const t = setTimeout(() => res(), 5000);   // зависший запрос не вешает старт
-      s.onload = () => { clearTimeout(t); res(); };
-      s.onerror = () => { clearTimeout(t); res(); };
-      document.head.appendChild(s);
-    });
-    const bridge = window.vkBridge;
+    // Мост уже загружен статически из index.html — повторно не инжектим.
+    let bridge = window.vkBridge;
+    if (!bridge || typeof bridge.send !== "function") {
+      if (!VK_BRIDGE_URL) return null;
+      await new Promise((res) => {
+        const s = document.createElement("script");
+        s.src = VK_BRIDGE_URL;
+        s.async = true;
+        const t = setTimeout(() => res(), 5000);
+        s.onload = () => { clearTimeout(t); res(); };
+        s.onerror = () => { clearTimeout(t); res(); };
+        document.head.appendChild(s);
+      });
+      bridge = window.vkBridge;
+    }
     if (!bridge || typeof bridge.send !== "function") return null;
-    try {
-      const initRes = await this._vkTimeout(bridge.send("VKWebAppInit", {}), 4000);
-      if (initRes === null) {
-        console.warn("VKWebAppInit timeout/error, falling back to mock.");
-        return null;   // игра стартует, а не виснет на лоадере
+    // Init в штатном режиме уже ушёл из index.html максимально рано.
+    // Здесь только страховка: если не уходил — шлём сейчас.
+    if (!window.__vkInitSent) {
+      window.__vkInitSent = true;
+      try {
+        const initRes = await this._vkTimeout(bridge.send("VKWebAppInit", {}), 4000);
+        if (initRes === null) { console.warn("VKWebAppInit timeout, fallback to mock."); return null; }
+      } catch (e) {
+        console.warn("VKWebAppInit failed", e);
+        return null;
       }
-    } catch (e) {
-      console.warn("VKWebAppInit failed", e);
-      return null;
     }
     this._vkBridge = bridge;
     return bridge;
