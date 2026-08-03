@@ -18,7 +18,7 @@ export const GP_SDK_URL = "";
 // вместо внешнего CDN, чтобы мобильный WebView не зависал на запросе.
 // Грузится динамически из Platform.init ТОЛЬКО если игра открыта в контексте VK (iframe / vk_app_id
 // в URL). На github.io и локалке скрипт НЕ тянется → игра остаётся в моке.
-export const VK_BRIDGE_URL = "Assets/vendor/vk-bridge.min.js";
+export const VK_BRIDGE_URL = "Assets/vk-bridge.min.js";
 
 // Путь к ассетам (относительно index.html)
 const A = "Assets";
