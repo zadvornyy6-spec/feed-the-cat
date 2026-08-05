@@ -279,7 +279,7 @@ function spawnClickCoin(x, y, crit) {
   if (!FXManager.particlesEnabled()) return;
   const layer = $("#svg-fx-layer");
   if (!layer) return;
-  const count = crit ? 3 : 1;
+  const count = crit && window.innerWidth >= 700 ? 3 : 1;
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_coin_spin.svg";
@@ -313,7 +313,8 @@ function spawnClickHeart(x, y, crit) {
     span = Math.max(60, r.width);
     topY = r.top - rootRect.top;
   }
-  const count = crit ? 10 : 5;
+  const mobile = window.innerWidth < 700;
+  const count = crit ? (mobile ? 4 : 10) : (mobile ? 2 : 5);
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_heart_fly.svg";
@@ -355,6 +356,8 @@ function spawnSlash() {
 /************************************************************
 FX MANAGER
 ************************************************************/
+let _lastCatFxAt = 0;
+
 export const FXManager = {
   canvas: null,
   ctx: null,
@@ -386,8 +389,8 @@ export const FXManager = {
   maxParticles() {
     if (!this.particlesEnabled()) return 0;
     const isMobile = window.innerWidth < 700;
-    if (state.settings.effects_quality === "high") return isMobile ? 25 : 60;
-    return 25;
+    if (state.settings.effects_quality === "high") return isMobile ? 15 : 60;
+    return isMobile ? 10 : 25;
   },
   spawn(x, y, color, count = 4, spread = 60) {
     if (!this.particlesEnabled()) return;
@@ -413,6 +416,11 @@ export const FXManager = {
     this.texts.push({ x, y, text, color, size, life: 0.75, maxLife: 0.75 });
   },
   catClickFX(x, y, amount, crit) {
+    // Мобильный бюджет FX: при быстром тапе не чаще батча в 80мс,
+    // иначе WebView захлёбывается DOM-штормом (фризы на medium/high).
+    const now = performance.now();
+    if (window.innerWidth < 700 && now - _lastCatFxAt < 80 && !crit) return;
+    _lastCatFxAt = now;
     spawnPaw(x + (Math.random() - 0.5) * 30, y + 10);
     if (typeof spawnClickHeart === "function") spawnClickHeart(x, y, crit);
     spawnClickCoinAtCombo(crit);
