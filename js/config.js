@@ -4,7 +4,7 @@ export const CLOUD_MOCK_KEY = "feedTheCatCloud_v1";
 // Для локальной разработки можно оставить true.
 // Для production в Яндекс Играх нужно выключить mock
 // и выдавать награду только после реального onRewarded от SDK.
-export const ALLOW_MOCK_REWARDED = true;
+export const ALLOW_MOCK_REWARDED = false;
 
 // GamePush SDK — единый слой под все витрины (Пикабу, VK, Telegram, OK, POKI и др.).
 // ВСТАВЬ СЮДА src из тега <script> раздела "Install Code" твоего проекта в панели
