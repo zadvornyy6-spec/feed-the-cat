@@ -758,7 +758,7 @@ export function renderHUD() {
   setHudPill("#hud-coins", CONFIG.uiIcons.coinHud, "hud-ico hud-flip",
     fmt(state.global.coins));
   setHudPill("#hud-income", "Assets/ui_icons/icon_lightning.svg", "hud-ico hud-flip",
-    fmt(autoclickerPerSecond()) + t("perSecond"));
+    fmtClick(autoclickerPerSecond()) + t("perSecond"));
 
   const pxp = state.global.player_xp_current;
   const pnext = state.global.player_xp_to_next;
