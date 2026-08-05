@@ -279,7 +279,7 @@ function spawnClickCoin(x, y, crit) {
   if (!FXManager.particlesEnabled()) return;
   const layer = $("#svg-fx-layer");
   if (!layer) return;
-  const count = crit ? 3 : 1;
+  const count = crit && window.innerWidth >= 700 ? 3 : 1;
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_coin_spin.svg";
@@ -304,6 +304,9 @@ function spawnClickHeart(x, y, crit) {
   if (!FXManager.particlesEnabled()) return;
   const layer = $("#svg-fx-layer");
   if (!layer) return;
+  const mobile = window.innerWidth < 700;
+  // Якорь — плашка уровня котика (skin-xp-panel) на ЛЮБОЙ ширине,
+  // сердечки стартуют по её периметру и всплывают вверх.
   const rootRect = $("#game-root").getBoundingClientRect();
   const panel = $("#skin-xp-panel");
   let cx = x, span = 120, topY = y;
@@ -313,7 +316,7 @@ function spawnClickHeart(x, y, crit) {
     span = Math.max(60, r.width);
     topY = r.top - rootRect.top;
   }
-  const count = crit ? 10 : 5;
+  const count = mobile ? (crit ? 2 : 1) : (crit ? 10 : 5);
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_heart_fly.svg";
@@ -355,6 +358,8 @@ function spawnSlash() {
 /************************************************************
 FX MANAGER
 ************************************************************/
+let _lastCatFxAt = 0;
+
 export const FXManager = {
   canvas: null,
   ctx: null,
@@ -386,8 +391,8 @@ export const FXManager = {
   maxParticles() {
     if (!this.particlesEnabled()) return 0;
     const isMobile = window.innerWidth < 700;
-    if (state.settings.effects_quality === "high") return isMobile ? 25 : 60;
-    return 25;
+    if (state.settings.effects_quality === "high") return isMobile ? 10 : 60;
+    return isMobile ? 6 : 25;
   },
   spawn(x, y, color, count = 4, spread = 60) {
     if (!this.particlesEnabled()) return;
@@ -413,6 +418,11 @@ export const FXManager = {
     this.texts.push({ x, y, text, color, size, life: 0.75, maxLife: 0.75 });
   },
   catClickFX(x, y, amount, crit) {
+    // Мобильный бюджет FX: при быстром тапе не чаще батча в 80мс,
+    // иначе WebView захлёбывается DOM-штормом (фризы на medium/high).
+    const now = performance.now();
+    if (window.innerWidth < 700 && now - _lastCatFxAt < 80 && !crit) return;
+    _lastCatFxAt = now;
     spawnPaw(x + (Math.random() - 0.5) * 30, y + 10);
     if (typeof spawnClickHeart === "function") spawnClickHeart(x, y, crit);
     spawnClickCoinAtCombo(crit);
@@ -524,10 +534,18 @@ export const Loading = {
 MODALS
 ************************************************************/
 let currentModal = null;
+let _refreshing = false;
 let _hiddenAt = 0;
 let _longPressActive = false;
 
 export function openModal(title, bodyHTML, opts = {}) {
+  if (_refreshing) {
+    const body = document.querySelector("#modal-root .modal-body");
+    const header = document.querySelector("#modal-root .modal-header h3");
+    if (body) body.innerHTML = bodyHTML;
+    if (header) header.innerHTML = title;
+    return;
+  }
   Platform.gameplayStop();
   const closable = opts.closable !== false;
   const unclosable = opts.unclosable ? 'data-unclosable="true"' : "";
@@ -580,6 +598,7 @@ export function refreshCurrentModal() {
   const oldBody = document.querySelector("#modal-root .modal-body");
   const scrollTop = oldBody ? oldBody.scrollTop : 0;
 
+  _refreshing = true;
   switch (currentModal.type) {
     case "shop": openShop(currentModal.tab); break;
     case "cook": openCook(); break;
@@ -591,6 +610,7 @@ export function refreshCurrentModal() {
     case "settings": openSettings(); break;
     case "skin-shop": openSkinShop(); break;
   }
+  _refreshing = false;
 
   const newBody = document.querySelector("#modal-root .modal-body");
 
@@ -1763,6 +1783,8 @@ function spawnClickCoinAtCombo(crit) {
   if (!FXManager.particlesEnabled()) return;
   const layer = $("#svg-fx-layer");
   if (!layer) return;
+  const mobile = window.innerWidth < 700;
+  // Якорь — плашка дохода за клик (или плашка уровня), на ЛЮБОЙ ширине.
   const rootRect = $("#game-root").getBoundingClientRect();
   const badge = $("#click-income-badge") || $("#skin-xp-panel");
   let cx = rootRect.width / 2, topY = rootRect.height / 2;
@@ -1771,17 +1793,20 @@ function spawnClickCoinAtCombo(crit) {
     cx = r.left - rootRect.left + r.width / 2;
     topY = r.top - rootRect.top;
   }
-  const count = crit ? 3 : 1;
+  const count = crit && !mobile ? 3 : 1;
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_coin_spin.svg";
     img.className = "svg-fx coin-float";
-    img.alt = ""; img.draggable = false;
+    img.alt = "";
+    img.draggable = false;
     const size = 24 + Math.floor(Math.random() * 8);
     const ox = cx + (Math.random() - 0.5) * 40;
-    const oy = topY - 16 + (Math.random() - 0.5) * 10; // чуть выше плашки
-    img.style.width = size + "px"; img.style.height = size + "px";
-    img.style.left = `${ox - size / 2}px`; img.style.top = `${oy - size / 2}px`;
+    const oy = topY - 16 + (Math.random() - 0.5) * 10;
+    img.style.width = size + "px";
+    img.style.height = size + "px";
+    img.style.left = `${ox - size / 2}px`;
+    img.style.top = `${oy - size / 2}px`;
     img.style.objectFit = "contain";
     img.style.setProperty("--drift", `${Math.floor((Math.random() - 0.5) * 30)}px`);
     layer.appendChild(img);
