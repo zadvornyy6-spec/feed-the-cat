@@ -304,17 +304,19 @@ function spawnClickHeart(x, y, crit) {
   if (!FXManager.particlesEnabled()) return;
   const layer = $("#svg-fx-layer");
   if (!layer) return;
-  const rootRect = $("#game-root").getBoundingClientRect();
-  const panel = $("#skin-xp-panel");
-  let cx = x, span = 120, topY = y;
-  if (panel) {
-    const r = panel.getBoundingClientRect();
-    cx = r.left - rootRect.left + r.width / 2;
-    span = Math.max(60, r.width);
-    topY = r.top - rootRect.top;
-  }
   const mobile = window.innerWidth < 700;
-  const count = crit ? (mobile ? 4 : 10) : (mobile ? 2 : 5);
+  let cx = x, span = 120, topY = y;
+  if (!mobile) {
+    const rootRect = $("#game-root").getBoundingClientRect();
+    const panel = $("#skin-xp-panel");
+    if (panel) {
+      const r = panel.getBoundingClientRect();
+      cx = r.left - rootRect.left + r.width / 2;
+      span = Math.max(60, r.width);
+      topY = r.top - rootRect.top;
+    }
+  }
+  const count = mobile ? (crit ? 2 : 1) : (crit ? 10 : 5);
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_heart_fly.svg";
@@ -389,8 +391,8 @@ export const FXManager = {
   maxParticles() {
     if (!this.particlesEnabled()) return 0;
     const isMobile = window.innerWidth < 700;
-    if (state.settings.effects_quality === "high") return isMobile ? 15 : 60;
-    return isMobile ? 10 : 25;
+    if (state.settings.effects_quality === "high") return isMobile ? 10 : 60;
+    return isMobile ? 6 : 25;
   },
   spawn(x, y, color, count = 4, spread = 60) {
     if (!this.particlesEnabled()) return;
@@ -1771,15 +1773,22 @@ function spawnClickCoinAtCombo(crit) {
   if (!FXManager.particlesEnabled()) return;
   const layer = $("#svg-fx-layer");
   if (!layer) return;
-  const rootRect = $("#game-root").getBoundingClientRect();
-  const badge = $("#click-income-badge") || $("#skin-xp-panel");
-  let cx = rootRect.width / 2, topY = rootRect.height / 2;
-  if (badge) {
-    const r = badge.getBoundingClientRect();
-    cx = r.left - rootRect.left + r.width / 2;
-    topY = r.top - rootRect.top;
+  const mobile = window.innerWidth < 700;
+  let cx, topY;
+  if (mobile) {
+    cx = FXManager.w / 2;
+    topY = FXManager.h / 2;
+  } else {
+    const rootRect = $("#game-root").getBoundingClientRect();
+    const badge = $("#click-income-badge") || $("#skin-xp-panel");
+    cx = rootRect.width / 2; topY = rootRect.height / 2;
+    if (badge) {
+      const r = badge.getBoundingClientRect();
+      cx = r.left - rootRect.left + r.width / 2;
+      topY = r.top - rootRect.top;
+    }
   }
-  const count = crit ? 3 : 1;
+  const count = crit && !mobile ? 3 : 1;
   for (let i = 0; i < count; i++) {
     const img = document.createElement("img");
     img.src = SVG_FX_PATH + "fx_coin_spin.svg";
@@ -1787,7 +1796,7 @@ function spawnClickCoinAtCombo(crit) {
     img.alt = ""; img.draggable = false;
     const size = 24 + Math.floor(Math.random() * 8);
     const ox = cx + (Math.random() - 0.5) * 40;
-    const oy = topY - 16 + (Math.random() - 0.5) * 10; // чуть выше плашки
+    const oy = topY - 16 + (Math.random() - 0.5) * 10;
     img.style.width = size + "px"; img.style.height = size + "px";
     img.style.left = `${ox - size / 2}px`; img.style.top = `${oy - size / 2}px`;
     img.style.objectFit = "contain";
